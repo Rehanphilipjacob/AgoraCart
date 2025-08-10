@@ -1,0 +1,119 @@
+<form action="/place-order" id="checkout-form">
+  <div class="container border border-dark">
+    <h2 class="text-center">Enter Delivery Details</h2>
+
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+        <span class="input-group-text" id="inputGroup-sizing-default">Address</span>
+      </div>
+      <input type="text" class="form-control" name="address" aria-label="Default"
+        aria-describedby="inputGroup-sizing-default">
+    </div>
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+        <span class="input-group-text" id="inputGroup-sizing-default">Pincode</span>
+      </div>
+      <input type="text" name="pincode" class="form-control" aria-label="Default"
+        aria-describedby="inputGroup-sizing-default">
+    </div>
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+        <span class="input-group-text" id="inputGroup-sizing-default">Mobile</span>
+      </div>
+      <input type="text" name="mobile" class="form-control" aria-label="Default"
+        aria-describedby="inputGroup-sizing-default">
+    </div>
+  </div>
+
+  <div class="container border border-dark mt-3 col-6 ms-auto">
+    <h2 class="text-center">Payment Option</h2>
+    <h3 class="text-center">Total:Rs.{{total}}</h3>
+
+
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <div class="input-group-text">
+          <input type="radio" name="paymentopt" value="cod">
+        </div>
+      </div>
+      <p>Cash On Delivery</p>
+    </div>
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <div class="input-group-text">
+          <input type="radio" name="paymentopt" value="online">
+        </div>
+      </div>
+      <p>Online Payment</p>
+    </div>
+    <input type="text" name="userId" value="{{user}}" hidden>
+    <input type="submit" value="Submit">
+  </div>
+</form>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+  $('#checkout-form').submit(
+    (e) => {
+      e.preventDefault();
+      $.ajax({
+        url: '/place-order',
+        method: 'post',
+        data: $('#checkout-form').serialize(),
+        success: (response) => {
+          console.log("jquery successful")
+          if (response.codSuccess) {
+            location.href = '/order-success'
+          } else {
+            razorpayPayment(response)
+          }
+        }
+      })
+    });
+  function razorpayPayment(order) {
+    var options = {
+      "key": "rzp_test_VK0NdDGJ0iq8LF", // Enter the Key ID generated from the Dashboard
+      "amount": order.amount, // Amount is in currency subunits.
+      "currency": "INR",
+      "name": "Ecommerce App ",  //your business name
+      "description": "Test Transaction",
+      "image": "https://example.com/your_logo",
+      "order_id": order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+      "handler": function (response) {
+        alert(response.razorpay_payment_id);
+        alert(response.razorpay_order_id);
+        alert(response.razorpay_signature)
+        verifyPayment(response, order)
+      },
+      "prefill": { //We recommend using the prefill parameter to auto-fill customer's contact information, especially their phone number
+        "name": "Gaurav Kumar", //your customer's name
+        "email": "gaurav.kumar@example.com",
+        "contact": "+919876543210"  //Provide the customer's phone number for better conversion rates 
+      },
+      "notes": {
+        "address": "Razorpay Corporate Office"
+      },
+      "theme": {
+        "color": "#3399cc"
+      }
+    };
+    var rzp1 = new Razorpay(options);
+      rzp1.open();
+  }
+  function verifyPayment(payment, order) {
+    $.ajax({
+      url: '/verify-payment',
+      data: {
+        payment,
+        order
+      },
+      method: 'post',
+      success:(response)=>{
+        if(response.status){
+          location.href='/order-success'        
+        }else{
+          alert("Online Payment Failed")
+        }
+      }
+    })
+  }
+</script>

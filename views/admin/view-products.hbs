@@ -1,0 +1,47 @@
+
+<section>
+    <div class="container">
+        <div class="d-flex justify-content-end">
+            <a href="/admin/add-product" class="btn btn-primary ml-auto">Add Product</a>
+        </div>
+        <table id="myTable">
+  <thead>
+    <tr>
+      <th scope="col">No</th>
+      <th scope="col">Name</th>
+      <th scope="col">Price</th>
+      <th scope="col">Category</th>
+      <th scope="col">Description</th>
+      <th scope="col">Action</th>
+      <th scope="col">Image</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each products}}
+    <tr>
+      <td scope="row">{{@index}}</td>
+      <td>{{this.Name}}</td>
+      <td>{{this.Price}}</td>
+      <td>{{this.Category}}</td>
+      <td>{{this.Description}}</td>
+      <td><a class="btn btn-primary" href="/admin/edit-product/{{this._id}}">Edit</a>
+        <a class="btn btn-danger" href="/admin/delete-product/{{this._id}}" onclick="return confirm('Are you sure?')">Delete</a></td>
+      <td><img src="/product-images/{{this._id}}.jpg" style="width:50px"></td>
+    </tr>
+      {{/each}}
+  </tbody>
+</table>
+    </div>
+</section>
+<script>
+    console.log(typeof simpleDatatables); // should be "object"
+  console.log(simpleDatatables)
+  document.addEventListener("DOMContentLoaded", function() {
+    console.log(typeof simpleDatatables); // should be "object"
+  console.log(simpleDatatables)
+    const dataTable = new simpleDatatables.DataTable("#myTable", {
+	searchable: false,
+	fixedHeight: true
+})
+});
+</script>

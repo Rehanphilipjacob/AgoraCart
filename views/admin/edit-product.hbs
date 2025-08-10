@@ -1,0 +1,38 @@
+<div class="container">
+<h2 class="text-center">Edit Product</h2>
+<form action="/admin/edit-product/{{product._id}}" method="POST" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label for="Name" class="form-label">Name</label>
+        <input type="text" class="form-control" name="Name" id="Name" value="{{product.Name}}">
+        <div class="mb-3">
+            <label for="Category" class="form-label">Category</label>
+            <input type="text" class="form-control" name="Category" id="Category" value="{{product.Category}}">
+        </div>
+        <div class="mb-3">
+            <label for="Description" class="form-label">Description</label>
+            <input type="text" class="form-control" name="Description" id="Description" value="{{product.Description}}">
+        </div>
+         <div class="mb-3">
+            <label for="Price" class="form-label">Price</label>
+            <input type="text" class="form-control" name="Price" id="Price" value="{{product.Price}}">
+        </div>
+        <div class="mb-3">
+            <label for="Image" class="form-label">Image</label>
+            <img src="/product-images/{{product._id}}.jpg" width="100px" height="auto" id="image-display" class="pt-3">
+            <input type="file" class="form-control" name="Image" id="image-input">
+        </div>
+        <button type="submit" class="btn btn-primary">Update</button>
+</form>
+</div>
+<script>
+        document.getElementById('image-input').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('image-display').src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>

@@ -1,0 +1,20 @@
+<table class="table mt-5">
+  <thead>
+    <tr>
+      <th scope="col">Item</th>
+      <th scope="col">Name</th>
+      <th scope="col">Quantity</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each products}}
+    <tr>
+      <td><img src="/product-images/{{this.cartProducts._id}}.jpg" style="width:50px"></td>
+      <td>{{this.cartProducts.Name}}</td>
+      <td>{{this.quantity}}</td>
+    </tr>
+     {{/each}}
+  
+  </tbody>
+</table>
+
