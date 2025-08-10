@@ -9,9 +9,9 @@ const db = require('./config/connection')
 const session  = require('express-session')
 
 
+require('dotenv').config();
 var userRouter = require('./routes/user');
 var adminRouter = require('./routes/admin');
-
 var app = express();
 
 // view engine setup

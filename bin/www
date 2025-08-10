@@ -26,7 +26,7 @@ var server = http.createServer(app);
  */
 
 server.listen(port,'0.0.0.0',()=>{
-console.log("Server running on ip address")
+console.log("Server running on port",port)
 });
 server.on('error', onError);
 server.on('listening', onListening);
