@@ -84,7 +84,7 @@ router.post('/change-product-quantity',verifyLogin,async (req,res,next)=>{
 })
 router.get('/place-order',verifyLogin,async (req,res)=>{
   let total = await userHelpers.getTotalAmount(req.session.user._id)
-  res.render('user/place-order',{total,user:req.session.user._id})
+  res.render('user/place-order',{total,user:req.session.user._id,key_id: process.env.RAZORPAY_KEY_ID })
 })
 router.post('/place-order',async(req,res)=>{
   let products = await userHelpers.getCartProductList(req.body.userId)

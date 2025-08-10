@@ -267,30 +267,49 @@ module.exports = {
             resolve(products)
         })
     },
-    generateRazorpay: (orderId, total) => {
-        console.log("OrderId:", orderId)
-        return new Promise((resolve, reject) => {
+    // generateRazorpay: (orderId, total) => {
+    //     console.log("OrderId:", orderId)
+    //     return new Promise((resolve, reject) => {
 
-            var options = {
-                amount: total * 100,  // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
-                currency: "INR",
-                receipt: orderId
-            };
-            instance.orders.create(options, function (err, order) {
-                console.log("Error for razorpay:", err)
-                console.log("New Order:", order);
-                resolve(order)
-            });
-        })
-    },
+    //         var options = {
+    //             amount: total * 100,  // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+    //             currency: "INR",
+    //             receipt: orderId
+    //         };
+    //         instance.orders.create(options, function (err, order) {
+    //             console.log("Error for razorpay:", err)
+    //             console.log("New Order:", order);
+    //             resolve(order)
+    //         });
+    //     })
+    // },
+    generateRazorpay: (orderId, total) => {
+  console.log("OrderId:", orderId);
+  return new Promise((resolve, reject) => {
+    const options = {
+      amount: total * 100,
+      currency: "INR",
+      receipt: orderId
+    };
+    instance.orders.create(options, (err, order) => {
+      if (err) {
+        console.log("Error for razorpay:", err);
+        reject(err);  // Reject on error
+      } else {
+        console.log("New Order:", order);
+        resolve(order);  // Resolve on success
+      }
+    });
+  });
+},
     verifyPayment:(details)=>{
         return new Promise((resolve,reject)=>{
             const crypto = require('crypto')
-            const hmac = crypto.createHmac('sha256', 'UHpg8ru3mAZoIOBMn738W1Ri');
+            const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
             hmac.update(details['payment[razorpay_order_id]']+"|"+details['payment[razorpay_payment_id]'])
             generated_signature = hmac.digest('hex')
             console.log("generated_signature:"+generated_signature)
-            console.log("received_signature:"+details['payment[razorpay_signature['])
+            console.log("received_signature:"+details['payment[razorpay_signature]'])
             if(generated_signature==details['payment[razorpay_signature]']){
                 resolve()
             }else{

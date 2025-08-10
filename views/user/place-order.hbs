@@ -50,12 +50,13 @@
 
     $form.on('submit', function (e) {
       e.preventDefault();
-
+      console.log("place order jquery is success")
       $.ajax({
         url: '/place-order',
         method: 'POST',
         data: $form.serialize(),
         success: function (response) {
+          
           if (response.codSuccess) {
             window.location.href = '/order-success';
           } else {
@@ -70,7 +71,7 @@
 
     function startRazorpayPayment(order) {
       const options = {
-        key: "rzp_test_VK0NdDGJ0iq8LF",
+        key: '{{key_id}}',
         amount: order.amount,
         currency: "INR",
         name: "Ecommerce App",
