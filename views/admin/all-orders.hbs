@@ -1,0 +1,66 @@
+<section>
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>All Orders</h2>
+            <a href="/admin/" class="btn btn-secondary">Back to Products</a>
+        </div>
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Order ID</th>
+                    <th>Date</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each orders}}
+                <tr>
+                    <td>{{inc @index}}</td>
+                    <td>{{this._id}}</td>
+                    <td>{{this.formattedDate}}</td>
+                    <td>₹{{this.totalAmount}}</td>
+                    {{!-- <td>
+                        <span
+                            class="badge bg-{{#if (equals this.status 'shipped')}}success{{else if (equals this.status 'placed')}}warning{{else}}secondary{{/if}}">
+                            {{this.status}}
+                        </span>
+                    </td> --}}
+                    <td>
+                    <select onchange="updateStatus('{{this._id}}',this.value)"> 
+                        <option value="pending" {{#if (equals this.status 'pending' )}}selected{{/if}}>Pending</option>
+                        <option value="placed" {{#if (equals this.status 'placed' )}}selected{{/if}}>Placed</option>
+                        <option value="shipped" {{#if (equals this.status 'shipped' )}}selected{{/if}}>Shipped</option>
+                    </select>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+
+        {{#unless orders.length}}
+        <p class="text-center text-muted">No orders found.</p>
+        {{/unless}}
+    </div>
+</section>
+<script>
+    function updateStatus(orderId, newStatus) {
+  $.ajax({
+    url: '/admin/update-order-status',
+    method: 'POST',
+    data: { orderId, status: newStatus },
+    success: function(response) {
+      if (response.success) {
+        alert('Order status updated.');
+      } else {
+        alert('Failed to update status.');
+      }
+    },
+    error: function() {
+      alert('Error updating order status.');
+    }
+  });
+}
+</script>

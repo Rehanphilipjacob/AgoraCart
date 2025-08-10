@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 const productHelpers = require('../helpers/product-helpers');
+const userHelpers = require('../helpers/user-helpers')
+const orderHelpers= require('../helpers/order-helpers')
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -50,5 +52,27 @@ router.get('/', function(req, res, next) {
       }
     })
   })
+  router.get('/users',(req,res)=>{
+    userHelpers.getAllUsers().then((users)=>{
+      res.render('admin/all-users',{users,admin:true})
+    })
+  })
+  router.get('/orders',(req,res)=>{
+   orderHelpers.getAllOrders().then((orders)=>{
+    orders.forEach(order => {
+  order.formattedDate = new Date(order.date).toLocaleDateString('en-GB'); // DD/MM/YYYY
+});
+    res.render('admin/all-orders',{orders,admin:true})
+   })
+  })
+  router.post('/update-order-status', async (req, res) => {
+  const { orderId, status } = req.body;
+  try {
+    await orderHelpers.updateOrderStatus(orderId, status);  // 
+    res.json({ success: true });
+  } catch (error) {
+    res.json({ success: false, error: error.message });
+  }
+});
 module.exports = router;
 

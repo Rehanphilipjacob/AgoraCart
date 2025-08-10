@@ -1,3 +1,19 @@
-<h1>{{message}}</h1>
-<h2>{{error.status}}</h2>
-<pre>{{error.stack}}</pre>
+{{!-- views/error.hbs --}}
+<div class="container py-5">
+  <div class="text-center">
+    <h1 class="display-4 text-danger">
+      {{#if error.status}}
+        Error {{error.status}}
+      {{else}}
+        Something went wrong
+      {{/if}}
+    </h1>
+    <p class="lead">{{message}}</p>
+
+    {{#if showStack}}
+      <pre class="bg-light p-3 text-start rounded">{{error.stack}}</pre>
+    {{/if}}
+
+    <a href="/" class="btn btn-primary mt-3">Go Home</a>
+  </div>
+</div>
