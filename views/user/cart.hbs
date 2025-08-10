@@ -1,60 +1,86 @@
-<table class="table mt-5">
-  <thead>
+<table class="table table-bordered align-middle mt-4">
+  <thead class="table-light">
     <tr>
-      <th scope="col">Item</th>
-      <th scope="col">Price</th>
+      <th scope="col">Product</th>
+      <th scope="col" style="width:120px;" class="text-end">Price (Rs.)</th>
       <th scope="col">Category</th>
-      <th scope="col">Quantity</th>
+      <th scope="col" style="width:150px;" class="text-center">Quantity</th>
+      <th scope="col" style="width:100px;" class="text-center">Action</th>
     </tr>
   </thead>
   <tbody>
     {{#each products}}
     <tr>
-      <td><img src="/product-images/{{this.product._id}}.jpg" style="width:50px"></td>
-      <td>{{this.product.Name}}</td>
-      <td>{{this.product.Price}}</td>
-      <td><button {{#if (equals this.quantity 1)}}{{/if}}  onclick="changeQuantity('{{this._id}}','{{this.product._id}}','{{@root.user._id}}',-1)">-</button><span id="{{this.product._id}}">{{this.quantity}}</span><button onclick="changeQuantity('{{this._id}}','{{this.product._id}}','{{@root.user._id}}',1)">+{{user._id}}</button></td>
-      <td><button class="btn-danger">Remove</button></td>
+      <td>
+        <div class="d-flex align-items-center">
+          <img src="/product-images/{{this.product._id}}.jpg" class="me-3" style="width:50px; height:50px; object-fit:cover;">
+          <span>{{this.product.Name}}</span>
+        </div>
+      </td>
+      <td class="text-end">{{this.product.Price}}</td>
+      <td>{{this.product.Category}}</td>
+      <td class="text-center">
+        <div class="btn-group" role="group">
+          <button class="btn btn-outline-secondary btn-sm"
+                  {{#if (equals this.quantity 1)}}disabled{{/if}}
+                  onclick="changeQuantity('{{this._id}}','{{this.product._id}}','{{@root.user._id}}',-1)">
+            −
+          </button>
+          <span id="{{this.product._id}}" class="px-3">{{this.quantity}}</span>
+          <button class="btn btn-outline-secondary btn-sm"
+                  onclick="changeQuantity('{{this._id}}','{{this.product._id}}','{{@root.user._id}}',1)">
+            +
+          </button>
+        </div>
+      </td>
+      <td class="text-center">
+        <button class="btn btn-danger btn-sm" onclick="removeProduct('{{this._id}}','{{this.product._id}}')">
+          Remove
+        </button>
+      </td>
     </tr>
-     {{/each}}
-  
+    {{/each}}
   </tbody>
 </table>
+
 <hr>
-<div class="d-flex justify-content-end">
-  <h3 class="me-5 mt-4">Total: Rs.<span id="totalValue">{{total}}</span></h3>
+<div class="d-flex justify-content-end align-items-center">
+  <h4 class="me-5">Total: Rs.<span id="totalValue">{{total}}</span></h4>
+  <a href="/place-order" class="btn btn-success">Place Order</a>
 </div>
-<div class="d-flex justify-content-end">
-  <a href="/place-order" class="float-right mt-2 me-5 btn btn-success">Place Order</a>
-</div>
+
 <script>
-  function changeQuantity(cartId,proId,userId,count){
-    let quantity = document.getElementById(proId).innerHTML
-    console.log(userId)
-    typeof(userId)
+  function changeQuantity(cartId, proId, userId, count) {
+    let quantity = parseInt(document.getElementById(proId).textContent);
+
     $.ajax({
-      url:'/change-product-quantity',
-      data:{
-        user:userId,
+      url: '/change-product-quantity',
+      method: 'POST',
+      data: {
+        user: userId,
         cart: cartId,
-        product:proId,
-        count:parseInt(count),
-        quantity:parseInt(quantity)
+        product: proId,
+        count: count,
+        quantity: quantity
       },
-      method:'post',
-      success:(response)=>{
-        console.log("success")
-        if(response.removeProduct){
-        alert("The product is removed from cart")
-        location.reload()
-        }
-        else{
-          console.log(response)
-          document.getElementById(proId).innerHTML=parseInt(quantity)+parseInt(count)
-          document.getElementById('totalValue').innerHTML=response.total['$numberDecimal']
-          console.log(response)
+      success: (response) => {
+        if (response.removeProduct) {
+          alert("The product has been removed from the cart.");
+          location.reload();
+        } else {
+          document.getElementById(proId).textContent = quantity + count;
+          document.getElementById('totalValue').textContent = response.total['$numberDecimal'];
         }
       }
-    })
+    });
+  }
+
+  function removeProduct(cartId, proId) {
+    $.ajax({
+      url: '/remove-product',
+      method: 'POST',
+      data: { cart: cartId, product: proId },
+      success: () => location.reload()
+    });
   }
 </script>

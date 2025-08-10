@@ -104,6 +104,9 @@ router.get('/order-success',async(req,res)=>{
   res.render('user/order-success')
 })
 router.get('/view-orders',async(req,res)=>{
+    if (!req.session.user) {
+    return res.redirect('/login');
+  }
   let orders = await userHelpers.getUserOrders(req.session.user._id)
   res.render('user/view-orders',{orders})
 })

@@ -1,119 +1,118 @@
-<form action="/place-order" id="checkout-form">
-  <div class="container border border-dark">
-    <h2 class="text-center">Enter Delivery Details</h2>
-
-    <div class="input-group mb-3">
-      <div class="input-group-prepend">
-        <span class="input-group-text" id="inputGroup-sizing-default">Address</span>
+<form id="checkout-form" action="/place-order" class="py-4">
+  <div class="container" style="max-width: 600px;">
+    <!-- Delivery Details -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-primary text-white text-center">
+        <h4 class="mb-0">Delivery Details</h4>
       </div>
-      <input type="text" class="form-control" name="address" aria-label="Default"
-        aria-describedby="inputGroup-sizing-default">
-    </div>
-    <div class="input-group mb-3">
-      <div class="input-group-prepend">
-        <span class="input-group-text" id="inputGroup-sizing-default">Pincode</span>
-      </div>
-      <input type="text" name="pincode" class="form-control" aria-label="Default"
-        aria-describedby="inputGroup-sizing-default">
-    </div>
-    <div class="input-group mb-3">
-      <div class="input-group-prepend">
-        <span class="input-group-text" id="inputGroup-sizing-default">Mobile</span>
-      </div>
-      <input type="text" name="mobile" class="form-control" aria-label="Default"
-        aria-describedby="inputGroup-sizing-default">
-    </div>
-  </div>
-
-  <div class="container border border-dark mt-3 col-6 ms-auto">
-    <h2 class="text-center">Payment Option</h2>
-    <h3 class="text-center">Total:Rs.{{total}}</h3>
-
-
-    <div class="input-group">
-      <div class="input-group-prepend">
-        <div class="input-group-text">
-          <input type="radio" name="paymentopt" value="cod">
+      <div class="card-body">
+        <div class="form-floating mb-3">
+          <input type="text" class="form-control" name="address" id="address" placeholder="Enter address" required>
+          <label for="address">Address</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input type="text" class="form-control" name="pincode" id="pincode" pattern="\d{6}" placeholder="Enter pincode" required>
+          <label for="pincode">Pincode</label>
+        </div>
+        <div class="form-floating">
+          <input type="tel" class="form-control" name="mobile" id="mobile" pattern="[6-9]\d{9}" placeholder="Enter mobile number" required>
+          <label for="mobile">Mobile Number</label>
         </div>
       </div>
-      <p>Cash On Delivery</p>
     </div>
-    <div class="input-group">
-      <div class="input-group-prepend">
-        <div class="input-group-text">
-          <input type="radio" name="paymentopt" value="online">
-        </div>
+
+    <!-- Payment Option -->
+    <div class="card shadow-sm">
+      <div class="card-header bg-success text-white text-center">
+        <h4 class="mb-0">Payment Option</h4>
       </div>
-      <p>Online Payment</p>
+      <div class="card-body">
+        <h5 class="text-center mb-3 fw-bold text-success">Total: ₹{{total}}</h5>
+        <div class="form-check mb-2">
+          <input type="radio" class="form-check-input" id="cod" name="paymentopt" value="cod" required>
+          <label class="form-check-label" for="cod">Cash On Delivery</label>
+        </div>
+        <div class="form-check">
+          <input type="radio" class="form-check-input" id="online" name="paymentopt" value="online" required>
+          <label class="form-check-label" for="online">Online Payment</label>
+        </div>
+        <input type="hidden" name="userId" value="{{user}}">
+        <button type="submit" class="btn btn-success mt-4 w-100">Place Order</button>
+      </div>
     </div>
-    <input type="text" name="userId" value="{{user}}" hidden>
-    <input type="submit" value="Submit">
   </div>
 </form>
+
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
-  $('#checkout-form').submit(
-    (e) => {
+  $(function () {
+    const $form = $('#checkout-form');
+
+    $form.on('submit', function (e) {
       e.preventDefault();
+
       $.ajax({
         url: '/place-order',
-        method: 'post',
-        data: $('#checkout-form').serialize(),
-        success: (response) => {
-          console.log("jquery successful")
+        method: 'POST',
+        data: $form.serialize(),
+        success: function (response) {
           if (response.codSuccess) {
-            location.href = '/order-success'
+            window.location.href = '/order-success';
           } else {
-            razorpayPayment(response)
+            startRazorpayPayment(response);
           }
+        },
+        error: function () {
+          alert("An error occurred while placing the order. Please try again.");
         }
-      })
+      });
     });
-  function razorpayPayment(order) {
-    var options = {
-      "key": "rzp_test_VK0NdDGJ0iq8LF", // Enter the Key ID generated from the Dashboard
-      "amount": order.amount, // Amount is in currency subunits.
-      "currency": "INR",
-      "name": "Ecommerce App ",  //your business name
-      "description": "Test Transaction",
-      "image": "https://example.com/your_logo",
-      "order_id": order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
-      "handler": function (response) {
-        alert(response.razorpay_payment_id);
-        alert(response.razorpay_order_id);
-        alert(response.razorpay_signature)
-        verifyPayment(response, order)
-      },
-      "prefill": { //We recommend using the prefill parameter to auto-fill customer's contact information, especially their phone number
-        "name": "Gaurav Kumar", //your customer's name
-        "email": "gaurav.kumar@example.com",
-        "contact": "+919876543210"  //Provide the customer's phone number for better conversion rates 
-      },
-      "notes": {
-        "address": "Razorpay Corporate Office"
-      },
-      "theme": {
-        "color": "#3399cc"
-      }
-    };
-    var rzp1 = new Razorpay(options);
-      rzp1.open();
-  }
-  function verifyPayment(payment, order) {
-    $.ajax({
-      url: '/verify-payment',
-      data: {
-        payment,
-        order
-      },
-      method: 'post',
-      success:(response)=>{
-        if(response.status){
-          location.href='/order-success'        
-        }else{
-          alert("Online Payment Failed")
+
+    function startRazorpayPayment(order) {
+      const options = {
+        key: "rzp_test_VK0NdDGJ0iq8LF",
+        amount: order.amount,
+        currency: "INR",
+        name: "Ecommerce App",
+        description: "Order Payment",
+        order_id: order.id,
+        handler: function (payment) {
+          verifyPayment(payment, order);
+        },
+        prefill: {
+          name: "{{userName}}", // Replace with dynamic user name
+          email: "{{userEmail}}", // Replace with dynamic email
+          contact: $("input[name='mobile']").val()
+        },
+        notes: {
+          address: $("input[name='address']").val()
+        },
+        theme: { color: "#3399cc" }
+      };
+
+      const rzp = new Razorpay(options);
+      rzp.on('payment.failed', function () {
+        alert("Payment failed. Please try again.");
+      });
+      rzp.open();
+    }
+
+    function verifyPayment(payment, order) {
+      $.ajax({
+        url: '/verify-payment',
+        method: 'POST',
+        data: { payment, order },
+        success: function (response) {
+          if (response.status) {
+            window.location.href = '/order-success';
+          } else {
+            alert("Online payment verification failed.");
+          }
+        },
+        error: function () {
+          alert("Error verifying payment.");
         }
-      }
-    })
-  }
+      });
+    }
+  });
 </script>

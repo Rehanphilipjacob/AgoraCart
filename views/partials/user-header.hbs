@@ -1,45 +1,70 @@
 <header>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/">Agora Cart</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo02"
-                aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="/">Products</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/cart">Cart<span class="badge text-bg-info" id="cart-count">{{cartCount}}</span></a>
-                    </li>
-                    {{#if user}}
-                    <li class="nav-item">
-                        <a class="nav-link" href="/view-orders">Orders</a>
-                    </li>
-                    {{/if}}
-                </ul>
-                <div class="dropdown ml-auto">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
-                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        {{#if user}}
-                        {{user.Name}}
-                        {{else}}
-                        Account
-                        {{/if}}
-                    </button>
-                    <ul class="dropdown-menu">
-                        {{#if user}}
-                        <li><a class="dropdown-item" href="/logout">Logout</a></li>
-                        {{else}}
-                        <li><a class="dropdown-item" href="/login">Login</a></li>
-                        {{/if}}
-                    </ul>
-                    </div>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
 
-                </div>
-            </div>
+      <!-- Brand -->
+      <a class="navbar-brand fw-bold" href="/">Agora Cart</a>
+
+      <!-- Mobile Toggle -->
+      <button 
+        class="navbar-toggler" 
+        type="button" 
+        data-bs-toggle="collapse" 
+        data-bs-target="#navbarToggler" 
+        aria-controls="navbarToggler" 
+        aria-expanded="false" 
+        aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- Navigation Links -->
+      <div class="collapse navbar-collapse" id="navbarToggler">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+          <li class="nav-item">
+            <a class="nav-link {{#if (equals activePage 'products')}}active{{/if}}" href="/">Products</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link {{#if (equals activePage 'cart')}}active{{/if}}" href="/cart">
+              Cart 
+              <span class="badge bg-info text-dark" id="cart-count">{{cartCount}}</span>
+            </a>
+          </li>
+
+          {{#if user}}
+          <li class="nav-item">
+            <a class="nav-link {{#if (equals activePage 'orders')}}active{{/if}}" href="/view-orders">Orders</a>
+          </li>
+          {{/if}}
+
+        </ul>
+
+        <!-- Account Dropdown -->
+        <div class="dropdown">
+          <button 
+            class="btn btn-secondary dropdown-toggle" 
+            type="button" 
+            id="accountDropdown" 
+            data-bs-toggle="dropdown" 
+            aria-expanded="false">
+            {{#if user}}
+              {{user.Name}}
+            {{else}}
+              Account
+            {{/if}}
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+            {{#if user}}
+              <li><a class="dropdown-item" href="/logout">Logout</a></li>
+            {{else}}
+              <li><a class="dropdown-item" href="/login">Login</a></li>
+              <li><a class="dropdown-item" href="/signup">Sign Up</a></li>
+            {{/if}}
+          </ul>
         </div>
-    </nav>
+
+      </div>
+    </div>
+  </nav>
 </header>

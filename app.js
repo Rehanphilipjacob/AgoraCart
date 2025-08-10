@@ -24,8 +24,25 @@ app.engine('hbs', engine({
   defaultLayout: 'layout',
   layoutsDir: path.join(__dirname, 'views/layouts/'),
   partialsDir: path.join(__dirname, 'views/partials'),
-  helpers:{
-    equals: (a,b)=>a===b
+  helpers: {
+    equals: (a, b) => a === b,
+    inc: (value) => parseInt(value) + 1,
+    formatDate: (date) => {
+      if (!date) return '';
+      return new Date(date).toLocaleDateString('en-GB'); // DD/MM/YYYY
+    },
+    statusClass: (status) => {
+  switch (status) {
+    case 'Delivered':
+      return 'bg-success text-white';
+    case 'Pending':
+      return 'bg-warning text-dark';
+    case 'Cancelled':
+      return 'bg-danger text-white';
+    default:
+      return 'bg-secondary text-white';
+  }
+}
   }
 }));
 
