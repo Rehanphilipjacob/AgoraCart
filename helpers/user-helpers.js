@@ -1,9 +1,9 @@
+require('dotenv').config();
 var db = require('../config/connection')
 const collections = require('../config/collections')
 const bcrypt = require('bcrypt')
 const { ObjectId } = require('mongodb')
 const Razorpay = require('razorpay');
-require('dotenv').config();
 var instance = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID ,
     key_secret: process.env.RAZORPAY_KEY_SECRET,
@@ -302,21 +302,24 @@ module.exports = {
     });
   });
 },
-    verifyPayment:(details)=>{
-        return new Promise((resolve,reject)=>{
-            const crypto = require('crypto')
-            const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
-            hmac.update(details['payment[razorpay_order_id]']+"|"+details['payment[razorpay_payment_id]'])
-            generated_signature = hmac.digest('hex')
-            console.log("generated_signature:"+generated_signature)
-            console.log("received_signature:"+details['payment[razorpay_signature]'])
-            if(generated_signature==details['payment[razorpay_signature]']){
-                resolve()
-            }else{
-                reject()
-            }
-        })
-    },
+    verifyPayment: (details) => {
+  return new Promise((resolve, reject) => {
+    const crypto = require('crypto');
+    const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
+
+    hmac.update(details.payment.razorpay_order_id + "|" + details.payment.razorpay_payment_id);
+    const generated_signature = hmac.digest('hex');
+
+    console.log("generated_signature:", generated_signature);
+    console.log("received_signature:", details.payment.razorpay_signature);
+
+    if (generated_signature === details.payment.razorpay_signature) {
+      resolve();
+    } else {
+      reject();
+    }
+  });
+},
     changePaymentStatus:(orderId)=>{
         return new Promise(async (resolve,reject)=>{
 

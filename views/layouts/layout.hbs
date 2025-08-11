@@ -10,7 +10,6 @@
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="/stylesheets/style.css">
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
@@ -36,24 +35,38 @@
 
     <script>
         async function addToCart(proId) {
-            try {
-                const response = await $.get(`/add-to-cart/${proId}`);
-                
-                if (response.redirectTo) {
-                    window.location.href = response.redirectTo;
-                    return;
-                }
+             try {
+        const response = await fetch(`/add-to-cart/${proId}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+            },
+            credentials: 'same-origin' // include cookies/session if needed
+        });
 
-                if (response.status) {
-                    let count = parseInt($('#cart-count').text(), 10) || 0;
-                    $('#cart-count').text(count + 1);
-                    showToast('Item added to cart');
-                } else {
-                    showToast('Could not add item to cart', 'danger');
-                }
-            } catch (err) {
-                showToast('An error occurred. Please try again.', 'danger');
-            }
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+
+        if (data.redirectTo) {
+            window.location.href = data.redirectTo;
+            return;
+        }
+
+        if (data.status) {
+            let count = parseInt(document.getElementById('cart-count').textContent, 10) || 0;
+            document.getElementById('cart-count').textContent = count + 1;
+            showToast('Item added to cart');
+        } else {
+            showToast('Could not add item to cart', 'danger');
+        }
+    } catch (err) {
+        console.error('Error adding to cart:', err);
+        showToast('An error occurred. Please try again.', 'danger');
+    }
+            
         }
 
         function showToast(message, type = 'success') {

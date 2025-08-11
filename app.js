@@ -10,9 +10,11 @@ const session  = require('express-session')
 
 
 require('dotenv').config();
+
+var app = express();
+app.use(express.json());
 var userRouter = require('./routes/user');
 var adminRouter = require('./routes/admin');
-var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname,'views'));
@@ -47,7 +49,7 @@ app.engine('hbs', engine({
 }));
 
 app.use(logger('dev'));
-app.use(express.json());
+
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));

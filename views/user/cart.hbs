@@ -53,7 +53,7 @@
   function changeQuantity(cartId, proId, userId, count) {
     let quantity = parseInt(document.getElementById(proId).textContent);
 
-    $.ajax({
+    {{!-- $.ajax({
       url: '/change-product-quantity',
       method: 'POST',
       data: {
@@ -72,15 +72,51 @@
           document.getElementById('totalValue').textContent = response.total['$numberDecimal'];
         }
       }
-    });
+    }); --}}
+
+     fetch('/change-product-quantity', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      user: userId,
+      cart: cartId,
+      product: proId,
+      count: count,
+      quantity: quantity
+    })
+  })
+  .then(response => {
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+  })
+  .then(response => {
+    if (response.removeProduct) {
+      alert("The product has been removed from the cart.");
+      location.reload();
+    } else {
+      // Convert to numbers to avoid string concatenation
+      document.getElementById(proId).textContent = Number(quantity) + Number(count);
+      document.getElementById('totalValue').textContent = response.total['$numberDecimal'];
+    }
+  })
+  .catch(error => console.error('Fetch error:', error));
   }
 
   function removeProduct(cartId, proId) {
-    $.ajax({
-      url: '/remove-product',
-      method: 'POST',
-      data: { cart: cartId, product: proId },
-      success: () => location.reload()
-    });
+    fetch('/remove-product',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        cart:cartId,product:proId
+      })
+    }).then((response)=>{
+      if(!response.ok) throw new Error('Network response was not okay')
+      location.reload()
+    }).catch((error)=>{
+      console.error("There was problem removing the product:",error)
+      alert("Failed to remove product")
+    })
   }
 </script>

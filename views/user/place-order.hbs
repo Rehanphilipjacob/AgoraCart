@@ -45,75 +45,92 @@
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
-  $(function () {
-    const $form = $('#checkout-form');
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('checkout-form');
 
-    $form.on('submit', function (e) {
-      e.preventDefault();
-      console.log("place order jquery is success")
-      $.ajax({
-        url: '/place-order',
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    console.log("place order fetch is success");
+
+    try {
+      const formData = Object.fromEntries(new FormData(form).entries());
+
+      const response = await fetch('/place-order', {
         method: 'POST',
-        data: $form.serialize(),
-        success: function (response) {
-          
-          if (response.codSuccess) {
-            window.location.href = '/order-success';
-          } else {
-            startRazorpayPayment(response);
-          }
+        headers: {
+          'Content-Type': 'application/json'
         },
-        error: function () {
-          alert("An error occurred while placing the order. Please try again.");
-        }
+        body: JSON.stringify(formData)
       });
-    });
 
-    function startRazorpayPayment(order) {
-      const options = {
-        key: '{{key_id}}',
-        amount: order.amount,
-        currency: "INR",
-        name: "Ecommerce App",
-        description: "Order Payment",
-        order_id: order.id,
-        handler: function (payment) {
-          verifyPayment(payment, order);
-        },
-        prefill: {
-          name: "{{userName}}", // Replace with dynamic user name
-          email: "{{userEmail}}", // Replace with dynamic email
-          contact: $("input[name='mobile']").val()
-        },
-        notes: {
-          address: $("input[name='address']").val()
-        },
-        theme: { color: "#3399cc" }
-      };
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
-      const rzp = new Razorpay(options);
-      rzp.on('payment.failed', function () {
-        alert("Payment failed. Please try again.");
-      });
-      rzp.open();
-    }
+      const data = await response.json();
 
-    function verifyPayment(payment, order) {
-      $.ajax({
-        url: '/verify-payment',
-        method: 'POST',
-        data: { payment, order },
-        success: function (response) {
-          if (response.status) {
-            window.location.href = '/order-success';
-          } else {
-            alert("Online payment verification failed.");
-          }
-        },
-        error: function () {
-          alert("Error verifying payment.");
-        }
-      });
+      if (data.codSuccess) {
+        window.location.href = '/order-success';
+      } else {
+        startRazorpayPayment(data);
+      }
+    } catch (error) {
+      console.error("Error placing order:", error);
+      alert("An error occurred while placing the order. Please try again.");
     }
   });
+
+  function startRazorpayPayment(order) {
+    const options = {
+      key: '{{key_id}}',
+      amount: order.amount,
+      currency: "INR",
+      name: "Ecommerce App",
+      description: "Order Payment",
+      order_id: order.id,
+      handler: function (payment) {
+        verifyPayment(payment, order);
+      },
+      prefill: {
+        name: "{{userName}}",
+        email: "{{userEmail}}",
+        contact: document.querySelector("input[name='mobile']").value
+      },
+      notes: {
+        address: document.querySelector("input[name='address']").value
+      },
+      theme: { color: "#3399cc" }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.on('payment.failed', function () {
+      alert("Payment failed. Please try again.");
+    });
+    rzp.open();
+  }
+
+  async function verifyPayment(payment, order) {
+    try {
+      const response = await fetch('/verify-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ payment, order })
+      });
+
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+      const data = await response.json();
+
+      if (data.status) {
+        window.location.href = '/order-success';
+      } else {
+        alert("Online payment verification failed.");
+      }
+    } catch (error) {
+      console.error('Error verifying payment:', error);
+      alert("Error verifying payment.");
+    }
+  }
+});
+
 </script>

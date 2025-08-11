@@ -7,9 +7,6 @@ const verifyLogin=(req,res,next)=>{
   if(req.session.userLoggedIn){
     next()
   }else{
-     if (req.xhr) {
-      return res.status(401).json({ redirectTo: '/login' });
-    }
     res.redirect('/login');
   }
 }
@@ -101,30 +98,33 @@ router.post('/place-order',async(req,res)=>{
   })
 })
 router.get('/order-success',async(req,res)=>{
-  res.render('user/order-success')
+  res.render('user/order-success',{user:req.session.user})
 })
 router.get('/view-orders',async(req,res)=>{
     if (!req.session.user) {
     return res.redirect('/login');
   }
   let orders = await userHelpers.getUserOrders(req.session.user._id)
-  res.render('user/view-orders',{orders})
+  res.render('user/view-orders',{orders,user:req.session.user})
 })
 router.get('/view-order-products/:id',async(req,res)=>{
   let products = await userHelpers.getOrderProducts(req.params.id)
   console.log(products)
   res.render('user/view-order-products',{products}) 
 })
-router.post("/verify-payment",async(req,res)=>{
-  console.log(req.body)
-  userHelpers.verifyPayment(req.body).then(()=>{
-    userHelpers.changePaymentStatus(req.body['order[receipt]']).then(()=>{
-      console.log('Payment Status')
-      res.json({status:true})
-    })
-  }).catch((err)=>{
-    console.log(err)
-    res.json({status:false})
-  })
-})
+
+router.post("/verify-payment", async (req, res) => {
+  console.log(req.body); // Will show { payment: {...}, order: {...} }
+
+  try {
+    await userHelpers.verifyPayment(req.body);
+    await userHelpers.changePaymentStatus(req.body.order.receipt);
+    console.log('Payment Status');
+    res.json({ status: true });
+  } catch (err) {
+    res.json({ status: false });
+  }
+});
+
+
 module.exports = router;

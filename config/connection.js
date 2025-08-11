@@ -1,7 +1,7 @@
 const { MongoClient, ServerApiVersion } = require("mongodb");
-
+require('dotenv').config();
 // Replace the placeholder with your Atlas connection string
-const uri = "mongodb://localhost:27017";
+const uri = process.env.MONGO_URI;
 const dbname = 'sample'
 const state={
     db:null
