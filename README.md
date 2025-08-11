@@ -23,7 +23,7 @@ AgoraCart is a full-stack ecommerce web application featuring product browsing, 
 * Backend: Node.js, Express.js
 * Templating: Handlebars (hbs)
 * Database: MongoDB
-* Frontend: Bootstrap 5, jQuery, AJAX
+* Frontend: Bootstrap 5, Vanilla JavaScript, fetch() API
 * Payment Gateway: Razorpay
 
 ## Installation

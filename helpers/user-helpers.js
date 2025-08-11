@@ -267,22 +267,6 @@ module.exports = {
             resolve(products)
         })
     },
-    // generateRazorpay: (orderId, total) => {
-    //     console.log("OrderId:", orderId)
-    //     return new Promise((resolve, reject) => {
-
-    //         var options = {
-    //             amount: total * 100,  // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
-    //             currency: "INR",
-    //             receipt: orderId
-    //         };
-    //         instance.orders.create(options, function (err, order) {
-    //             console.log("Error for razorpay:", err)
-    //             console.log("New Order:", order);
-    //             resolve(order)
-    //         });
-    //     })
-    // },
     generateRazorpay: (orderId, total) => {
   console.log("OrderId:", orderId);
   return new Promise((resolve, reject) => {
